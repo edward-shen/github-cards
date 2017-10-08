@@ -7,7 +7,8 @@ Gem::Specification.new do |s|
   s.authors     = ["Edward Shen"]
   s.email       = 'edward@syllogism.xyz'
   s.files       = ["lib/grhg.rb"]
-  s.homepage    =
-    'http://github.com/edward-shen/github-repo-html-gen'
+  s.homepage    = 'http://github.com/edward-shen/github-repo-html-gen'
   s.license       = 'MIT'
+  s.add_dependency('graphql-client', '~> 0.12.1')
+  s.add_dependency('jekyll', '~> 3.6.0')
 end
