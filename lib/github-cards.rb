@@ -78,7 +78,7 @@ module GITHUB
 
   result = GITHUB::Client.query(RepoQuery).data.viewer
 
-  output = "<section>\n"
+  output = "<section class=\"gh-cards\">\n"
   avatar_url = result.avatar_url
   username = result.login
   for repo in result.repositories.edges do
@@ -87,12 +87,20 @@ module GITHUB
 %Q(  <article class="gh-card">
     <section class="gh-card-top">
       <a href="https://github.com/#{username}"><img class="gh-card-avatar" src="#{avatar_url}" alt="User icon"></a>
-      <div>
+      <div class="gh-card-info">
         <h4><a href="https://github.com/#{username}/#{repo.node.name}">#{repo.node.name}</a></h4>
         <p>Created by <a href="https://github.com/#{username}">#{username}</a></p>
       </div>
+      <p class="gh-card-lang">#{
+        if repo.node.languages.edges.length != 0
+          repo.node.languages.edges.first.node.name
+        else
+       ""
+        end}</p>
     </section>
-    <p>#{repo.node.description || "No description provided"}</p>
+
+    <p class="gh-card-desc">#{repo.node.description || "<i>No description provided</i>"}</p>
+
     <section class="gh-card-bottom">
       <svg aria-hidden="true" height="16" version="1.1" viewBox="0 0 14 16" width="14">
         <path fill-rule="evenodd" d="M14 6l-4.9-.64L7 1 4.9 5.36 0 6l3.6 3.26L2.67 14 7 11.67 11.33 14l-.93-4.74z" />
