@@ -1,0 +1,25 @@
+.gh-card {
+    background-color: #00ffdd;
+    width: 400px;
+    margin-bottom: 16px;
+    border-radius: 4px;
+    box-shadow: 5px 5px 10px #aaaaaa;
+    padding: 4px;
+}
+
+.gh-card-top {
+    display: flex;
+    background-color: #cc00cc;
+    justify-content: flex-start;
+}
+
+.gh-card-avatar {
+    width:  75px;
+    height: 75px;
+    border-radius: 4px;
+}
+
+.gh-card-bottom {
+    border-top: 1px solid #ccc;
+    background-color: #7777cc;
+}
