@@ -1,10 +1,18 @@
+.gh-cards {
+    display:flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+}
+
 .gh-cards p {
     margin: 0;
 }
 
 .gh-card {
+    display: inline-block;
     width: 400px;
     margin-bottom: 16px;
+    margin-right: 16px;
     border-radius: 4px;
     box-shadow: 0 2px 4px #aaaaaa;
     padding: 12px;
@@ -43,6 +51,10 @@
     margin-right: 8px;
 }
 
+.gh-card-details {
+    margin-top: 8px;
+}
+
 .gh-card-lang {
     margin: 0;
     flex-grow: 1;
@@ -51,9 +63,20 @@
 
 .gh-cards .gh-card-desc {
     margin: 16px 0;
+    min-height: 2.25rem;
 }
 
 .gh-card-bottom {
     padding-top: 8px;
     border-top: 1px solid #ccc;
+    display:flex;
+    align-items: flex-start;
+}
+
+.gh-card-bottom p {
+    margin: 0 8px;
+}
+
+.gh-card .text-grey {
+    color: #586069;
 }
