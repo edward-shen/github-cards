@@ -4,11 +4,6 @@ require "time"
 
 class GithubCards < Liquid::Tag
 
-  def number_or_nil(string)
-    num = string.to_i
-    num if num.to_s == string
-  end
-
   # Graciously stolen from somewhere on github <3
   HTTPAdapter = GraphQL::Client::HTTP.new("https://api.github.com/graphql") do
     def headers(context)
@@ -30,11 +25,10 @@ class GithubCards < Liquid::Tag
   Client = GraphQL::Client.new(schema: Schema, execute: HTTPAdapter)
 
   # Various Schemas
-  AllRepoQuery = GithubCards::Client.parse <<-'GRAPHQL'
+  NYoursRepoQuery = GithubCards::Client.parse <<-'GRAPHQL'
   query($num: Int!){
     viewer {
       avatarUrl
-      name
       login
       repositories(first: $num, privacy: PUBLIC, orderBy: {field: CREATED_AT, direction: DESC}) {
         edges {
@@ -58,6 +52,31 @@ class GithubCards < Liquid::Tag
     }
   }
   GRAPHQL
+
+  SingleYoursRepoQuery = GithubCards::Client.parse <<-'GRAPHQL'
+  query($repo_name: String!){
+    viewer {
+      avatarUrl
+      login
+      repository(name: $repo_name) {
+        name
+        description
+        primaryLanguage {
+          color
+          name
+        }
+        pushedAt
+        stargazers {
+          totalCount
+        }
+        forks {
+          totalCount
+        }
+      }
+    }
+  }
+  GRAPHQL
+
 
   SingleRepoQuery = GithubCards::Client.parse <<-'GRAPHQL'
   query($username: String!, $repo_name: String!){
@@ -83,45 +102,54 @@ class GithubCards < Liquid::Tag
   }
   GRAPHQL
 
-  @@output = "<section class=\"gh-cards\">\n"
-  @@args = nil
+  @@output = ""
+  @args = nil
 
   def initialize(tag_name, args, tokens)
-    @@args = args.split(" ")
+    @args = args.split(" ")
     super
   end
 
   def render(context)
-    if @@args.length == 0
-      showAll
-    elsif @@args.length == 1
-      # User wants to show one of their repos
-      if number_or_nil(@@args[0])
-        showSingleRepo
-      else # User wants to show n of their repos
-
+    @@output = "<section class=\"gh-cards\">\n"
+    if @args.length == 0
+      show_all_yours
+    elsif @args.length == 1
+      # User wants to show n of their repos
+      if number_or_nil(@args[0])
+        show_n_yours
+      else # User wants to show one of their repos
+        show_repo
       end
-    elsif @@args.length == 2
-      # User wants to show one of someone else's repo
-      if number_or_nil(@@args[1])
-
-      else # User wants to show n of someone else's repos
-
+    elsif @args.length == 2
+      # User wants to show n of someone else's repos
+      if number_or_nil(@args[1])
+        show_n_repos
+      else # User wants to show one of someone else's repo
+        show_repo
       end
     end
     @@output += "</section>"
   end
 
-  def showAll
-    result = GithubCards::Client.query(AllRepoQuery, variables: { num: 30 }).data.viewer
+  # String -> (Integer or nil)
+  # Returns the number if the string is a valid integer, else return nil.
+  # param string The string to be checked
+  def number_or_nil(string)
+    num = string.to_i
+    num if num.to_s == string
+  end
+
+  def show_all_yours
+    result = GithubCards::Client.query(NYoursRepoQuery, variables: { num: 30 }).data.viewer
     for repo in result.repositories.edges do
-      showSingleRepo(repo.node, result.login, result.avatar_url)
+      get_repo_html(repo.node, result.login, result.avatar_url)
     end
   end
 
-  def showRepo
-    result = GithubCards::Client.query(SingleRepoQuery, variables: { username: args[0], repo_name: args[1]}).data.user
-    showSingleRepo(result.repository, result.login, result.avatar_url)
+  def show_repo
+    result = GithubCards::Client.query(SingleRepoQuery, variables: { username: @args[0], repo_name: @args[1] }).data.user
+    get_repo_html(result.repository, result.login, result.avatar_url)
   end
 
   # GraphQLObject -> String
@@ -129,7 +157,7 @@ class GithubCards < Liquid::Tag
   # param repo The object from the GraphQL call that is that the repo's root level.
   # param username The username of the user
   # param avatar_url the url of the user
-  def showSingleRepo(repo, username, avatar_url)
+  def get_repo_html(repo, username, avatar_url)
     @@output += %Q(
       <article class="gh-card">
         <section class="gh-card-top">
