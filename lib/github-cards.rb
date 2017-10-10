@@ -10,8 +10,6 @@ class GithubCards < Liquid::Tag
   HTTPAdapter = GraphQL::Client::HTTP.new("https://api.github.com/graphql") do
     def headers(context)
       unless GITHUB_ACCESS_TOKEN
-        # $ GITHUB_ACCESS_TOKEN=abc123 bin/rails server
-        #   https://help.github.com/articles/creating-an-access-token-for-command-line-use
         fail "Missing GitHub access token"
      end
 
