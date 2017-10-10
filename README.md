@@ -29,16 +29,37 @@ I have provided two files as a template: `style.css` and `_github-cards.scss`.
 They both provide the same functionality. Note that you may need to increase specificity if your other CSS/Sass
 overrides these styles.
 
+To include these styles, simply add `@import "github-cards";` or `@import "style.css";`.
+
+
 To list all your repos, add the following liquid tag:
 ```
 {% ghcards %}
 ```
-
 This will produce cards for the first 30 most recently created repos. This is useful for listing out your repos for a projects page.
+
+---
+### To be implemented features
+
+### Listing multiple repos
+To show the first n (up to 30) of your repos:
+```
+{% ghcards n %}
+```
+
+To show the first n (up to 30) of somebody's repos:
+```
+{% ghcards username n %}
+```
+### Listing single repos
+To show a single repo of your own:
+```
+{% ghcards repo %}
+```
 
 To show a single repo, add the following liquid tag:
 ```
-{% ghcards *username* *repo* %}
+{% ghcards username repo %}
 ```
 For example, if you wanted to show only this repo, you'd use:
 ```
