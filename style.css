@@ -34,9 +34,16 @@
     margin: 0;
 }
 
-.gh-card-info{
+.gh-card-info {
     display: block;
     font-size: 1rem;
+    overflow: hidden;
+}
+
+.gh-card-info h4 {
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
 }
 
 .gh-card-top {
@@ -59,9 +66,12 @@
     margin: 0;
     flex-grow: 1;
     text-align: right;
+    display: flex;
+    flex-direction: row-reverse;
+    align-items: flex-start;
 }
 
-.gh-cards .gh-card-desc {
+.gh-card .gh-card-desc {
     margin: 16px 0;
     min-height: 2.25rem;
 }
@@ -74,9 +84,17 @@
 }
 
 .gh-card-bottom p {
-    margin: 0 8px;
+    display:flex;
+    margin-right: 8px;
 }
 
 .gh-card .text-grey {
     color: #586069;
+    fill: #586069;
+}
+
+.gh-card svg {
+    width: 14px;
+    height: 16px;
+    margin-right: 8px;
 }

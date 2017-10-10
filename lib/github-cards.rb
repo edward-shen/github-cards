@@ -23,7 +23,7 @@ require "graphql/client"
 require "graphql/client/http"
 require "time"
 
-module GITHUB
+class GithubCards < Liquid::Tag
 
   # Graciously stolen from somewhere on github <3
   HTTPAdapter = GraphQL::Client::HTTP.new("https://api.github.com/graphql") do
@@ -43,11 +43,12 @@ module GITHUB
   end
 
   # Fetch latest schema on init, this will make a network request
+  # Github's schema literally changes from day to day.
   Schema = GraphQL::Client.load_schema(HTTPAdapter)
 
   Client = GraphQL::Client.new(schema: Schema, execute: HTTPAdapter)
 
-  RepoQuery = GITHUB::Client.parse <<-'GRAPHQL'
+  RepoQuery = GithubCards::Client.parse <<-'GRAPHQL'
   query {
     viewer {
       avatarUrl
@@ -62,7 +63,7 @@ module GITHUB
               color
               name
             }
-            updatedAt
+            pushedAt
             stargazers {
               totalCount
             }
@@ -76,8 +77,14 @@ module GITHUB
   }
   GRAPHQL
 
-  result = GITHUB::Client.query(RepoQuery).data.viewer
 
+  def initialize(tag_name, username, tokens)
+    super
+  end
+
+  def render(context)
+
+  result = GithubCards::Client.query(RepoQuery).data.viewer
   output = "<section class=\"gh-cards\">\n"
   avatar_url = result.avatar_url
   username = result.login
@@ -88,42 +95,46 @@ module GITHUB
     <section class="gh-card-top">
       <a href="https://github.com/#{username}"><img class="gh-card-avatar" src="#{avatar_url}" alt="User icon"></a>
       <section class="gh-card-info">
-        <h4><a href="https://github.com/#{username}/#{repo.node.name}">#{repo.node.name}</a></h4>
+        <a href="https://github.com/#{username}/#{repo.node.name}"><h4>#{repo.node.name}</h4></a>
         <div class="gh-card-details">
           <p>Created by <a href="https://github.com/#{username}">#{username}</a></p>
           <p>Last updated on <a href="https://github.com/#{username}/#{repo.node.name}/commits/master"> #{
-            puts repo.node.name + "\t\t\t\t\t\t\t\t\t" + repo.node.updated_at
-            t = Time.parse(repo.node.updated_at)
-                              t.strftime("%Y-%m-%d")}</a></p>
+            t = Time.parse(repo.node.pushed_at)
+            t.strftime("%Y-%m-%d")}</a></p>
         </div>
       </section>
       #{if repo.node.primary_language
       %Q(
         <section class="gh-card-lang">
-      <a class="text-grey">
-        <svg aria-hidden="true" height="16" version="1.1" viewBox="0 0 14 16" "width "14">
-          <circle cx="7" cy="7" r="7" fill="#{repo.node.primary_language.color}" />
-        </svg>#{repo.node.primary_language.name}</a>
+      <p class="text-grey">
+        #{repo.node.primary_language.name}</p>
+        <svg aria-hidden="true" version="1.1" viewBox="0 0 14 16">
+        <circle cx="7" cy="7" r="7" fill="#{repo.node.primary_language.color}" />
+      </svg>
         </section>)
       end
       }
 
     </section>
 
-    <p class="gh-card-desc">#{repo.node.description || "<i class=\"text-grey\">No description provided</i>"}</p>
+    <p class="gh-card-desc">#{repo.node.description || "<i class=\"text-grey\">No description provided.</i>"}</p>
 
-    <section class="gh-card-bottom">
-      <svg aria-hidden="true" height="16" version="1.1" viewBox="0 0 14 16" width="14">
+    <section class="gh-card-bottom text-grey">
+      <svg aria-hidden="true" version="1.1" viewBox="0 0 14 16">
         <path fill-rule="evenodd" d="M14 6l-4.9-.64L7 1 4.9 5.36 0 6l3.6 3.26L2.67 14 7 11.67 11.33 14l-.93-4.74z" />
       </svg>
       <p>#{repo.node.stargazers.total_count.to_s}</p>
-      <svg aria-hidden="true" height="16" version="1.1" viewBox="0 0 10 16" width="10">
+      <svg aria-hidden="true" version="1.1" viewBox="0 0 10 16">
         <path fill-rule="evenodd" d="M8 1a1.993 1.993 0 0 0-1 3.72V6L5 8 3 6V4.72A1.993 1.993 0 0 0 2 1a1.993 1.993 0 0 0-1 3.72V6.5l3 3v1.78A1.993 1.993 0 0 0 5 15a1.993 1.993 0 0 0 1-3.72V9.5l3-3V4.72A1.993 1.993 0 0 0 8 1zM2 4.2C1.34 4.2.8 3.65.8 3c0-.65.55-1.2 1.2-1.2.65 0 1.2.55 1.2 1.2 0 .65-.55 1.2-1.2 1.2zm3 10c-.66 0-1.2-.55-1.2-1.2 0-.65.55-1.2 1.2-1.2.65 0 1.2.55 1.2 1.2 0 .65-.55 1.2-1.2 1.2zm3-10c-.66 0-1.2-.55-1.2-1.2 0-.65.55-1.2 1.2-1.2.65 0 1.2.55 1.2 1.2 0 .65-.55 1.2-1.2 1.2z"/>
       </svg>
       <p>#{repo.node.forks.total_count.to_s}</p>
     </section>
   </article>\n\n)
   end
-  output += "</section>\n<style>#{File.read('style.css')}</style>"
-  File.write("testfile.html", output)
+  output += "</section>"
+  # output += "</section>\n<style>#{File.read('style.css')}</style>"
+  # File.write("testfile.html", output)
+  end
 end
+
+Liquid::Template.register_tag('ghcard', GithubCards)
