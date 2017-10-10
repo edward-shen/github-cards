@@ -4,18 +4,18 @@ require "time"
 
 class GithubCards < Liquid::Tag
 
+  GITHUB_ACCESS_TOKEN = Jekyll.configuration({})['github_access_token']
+
   # Graciously stolen from somewhere on github <3
   HTTPAdapter = GraphQL::Client::HTTP.new("https://api.github.com/graphql") do
     def headers(context)
-#      unless token = context[:access_token] || Application.secrets.github_access_token
+      unless GITHUB_ACCESS_TOKEN
         # $ GITHUB_ACCESS_TOKEN=abc123 bin/rails server
         #   https://help.github.com/articles/creating-an-access-token-for-command-line-use
-#        fail "Missing GitHub access token"
-#      end
+        fail "Missing GitHub access token"
+     end
 
-      token="f960d2a94d3598bc746733c55f29efb5eabdfe1c"
-
-      { "Authorization" => "Bearer #{token}" }
+      { "Authorization" => "Bearer #{GITHUB_ACCESS_TOKEN}" }
     end
   end
 
@@ -77,6 +77,33 @@ class GithubCards < Liquid::Tag
   }
   GRAPHQL
 
+  NRepoQuery = GithubCards::Client.parse <<-'GRAPHQL'
+  query($username: String!, $num: Int!){
+    user(login: $username) {
+      avatarUrl
+      login
+      repositories(first: $num, privacy: PUBLIC, orderBy: {field: CREATED_AT, direction: DESC}) {
+        edges {
+          node {
+            name
+            description
+            primaryLanguage {
+              color
+              name
+            }
+            pushedAt
+            stargazers {
+              totalCount
+            }
+            forks {
+              totalCount
+            }
+          }
+        }
+      }
+    }
+  }
+  GRAPHQL
 
   SingleRepoQuery = GithubCards::Client.parse <<-'GRAPHQL'
   query($username: String!, $repo_name: String!){
@@ -110,23 +137,25 @@ class GithubCards < Liquid::Tag
     super
   end
 
+  # context (?) -> String
+  # Returns the HTML for the cards, depending on the passed args
   def render(context)
     @@output = "<section class=\"gh-cards\">\n"
     if @args.length == 0
-      show_all_yours
+      show_n_yours(30)
     elsif @args.length == 1
       # User wants to show n of their repos
       if number_or_nil(@args[0])
-        show_n_yours
+        show_n_yours(@args[0].to_i)
       else # User wants to show one of their repos
-        show_repo
+        show_repo_yours(@args[0])
       end
     elsif @args.length == 2
       # User wants to show n of someone else's repos
       if number_or_nil(@args[1])
-        show_n_repos
+        show_n_repos(@args[0], @args[1].to_i)
       else # User wants to show one of someone else's repo
-        show_repo
+        show_repo(@args[0], @args[1])
       end
     end
     @@output += "</section>"
@@ -140,15 +169,27 @@ class GithubCards < Liquid::Tag
     num if num.to_s == string
   end
 
-  def show_all_yours
-    result = GithubCards::Client.query(NYoursRepoQuery, variables: { num: 30 }).data.viewer
+  def show_n_yours(num_repos)
+    result = GithubCards::Client.query(NYoursRepoQuery, variables: { num: (num_repos <= 30) ? num_repos : 30 }).data.viewer
     for repo in result.repositories.edges do
       get_repo_html(repo.node, result.login, result.avatar_url)
     end
   end
 
-  def show_repo
-    result = GithubCards::Client.query(SingleRepoQuery, variables: { username: @args[0], repo_name: @args[1] }).data.user
+  def show_repo_yours(repo_name)
+    result = GithubCards::Client.query(SingleYoursRepoQuery, variables: { repo_name: repo_name }).data.viewer
+    get_repo_html(result.repository, result.login, result.avatar_url)
+  end
+
+  def show_n_repos(username, num_repos)
+    result = GithubCards::Client.query(NRepoQuery, variables: { username: username, num: (num_repos <= 30) ? num_repos : 30 }).data.user
+    for repo in result.repositories.edges do
+      get_repo_html(repo.node, result.login, result.avatar_url)
+    end
+  end
+
+  def show_repo(username, repo_name)
+    result = GithubCards::Client.query(SingleRepoQuery, variables: { username: username, repo_name: repo_name }).data.user
     get_repo_html(result.repository, result.login, result.avatar_url)
   end
 
