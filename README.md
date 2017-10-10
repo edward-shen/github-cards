@@ -16,6 +16,21 @@ group :jekyll_plugins do
    gem "graphql-client"
 end
 ```
+Additionally, you'll need to create a Github Personal Access Token. Fear not, you
+don't need any permissions other than the default scope.
+
+See [this Github article](https://help.github.com/articles/creating-an-access-token-for-command-line-use)
+on how to create your own.
+
+Remember, you don't need *any* permissions other than the default scope
+
+Once you got one, add it to your `_config.yml`:
+```
+...
+github_access_token: "abc123"
+...
+```
+
 
 Then, re-run `bundle install`.
 
