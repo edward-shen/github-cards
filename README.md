@@ -51,6 +51,7 @@ To show the first n (up to 30) of somebody's repos:
 ```
 {% ghcards username n %}
 ```
+
 ### Listing single repos
 To show a single repo of your own:
 ```
@@ -65,6 +66,7 @@ For example, if you wanted to show only this repo, you'd use:
 ```
 {% ghcards edward-shen github-cards %}
 ```
+
 
 ## Planned features
 - [ ] Specify single card
