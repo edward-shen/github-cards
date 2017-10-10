@@ -38,9 +38,6 @@ To list all your repos, add the following liquid tag:
 ```
 This will produce cards for the first 30 most recently created repos. This is useful for listing out your repos for a projects page.
 
----
-### To be implemented features
-
 ### Listing multiple repos
 To show the first n (up to 30) of your repos:
 ```
@@ -67,8 +64,18 @@ For example, if you wanted to show only this repo, you'd use:
 {% ghcards edward-shen github-cards %}
 ```
 
+## Things to know
+
+### Static stars and forks
+Unfortunately, by nature of jekyll, everything is static when you generate your website.
+This means your stars and forks won't update if someone else stars or forks your repo
+after you generate you site. The solution? I've created a small, pure JS script that updates every
+github card with the newest data.
 
 ## Planned features
-- [ ] Specify single card
-- [ ] Implement get n cards from your repo
+- [x] Specify single card
+- [x] Implement get n cards from your repo
+- [ ] Implement infinite repos
+- [ ] Clean up codebase
 - [ ] Bug fixes
+- [ ] Add small js to update stars and forks on load
