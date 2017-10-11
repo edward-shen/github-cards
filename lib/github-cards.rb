@@ -11,7 +11,7 @@ class GithubCards < Liquid::Tag
     def headers(context)
       unless GITHUB_ACCESS_TOKEN
         fail "Missing GitHub access token"
-     end
+      end
 
       { "Authorization" => "Bearer #{GITHUB_ACCESS_TOKEN}" }
     end
@@ -127,9 +127,6 @@ class GithubCards < Liquid::Tag
   }
   GRAPHQL
 
-  @@output = ""
-  @args = nil
-
   def initialize(tag_name, args, tokens)
     @args = args.split(" ")
     super
@@ -138,7 +135,7 @@ class GithubCards < Liquid::Tag
   # context (?) -> String
   # Returns the HTML for the cards, depending on the passed args
   def render(context)
-    @@output = "<section class=\"gh-cards\">\n"
+    @output = "<section class=\"gh-cards\">\n"
     if @args.length == 0
       show_n_yours(30)
     elsif @args.length == 1
@@ -156,7 +153,7 @@ class GithubCards < Liquid::Tag
         show_repo(@args[0], @args[1])
       end
     end
-    @@output += "</section>"
+    @output += "</section>"
   end
 
   # String -> (Integer or nil)
@@ -197,7 +194,7 @@ class GithubCards < Liquid::Tag
   # param username The username of the user
   # param avatar_url the url of the user
   def get_repo_html(repo, username, avatar_url)
-    @@output += %Q(
+    @output += %Q(
       <article class="gh-card">
         <section class="gh-card-top">
           <a href="https://github.com/#{username}"><img class="gh-card-avatar" src="#{avatar_url}" alt="User icon"></a>
