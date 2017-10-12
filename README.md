@@ -63,8 +63,30 @@ github_access_token: "abc123"
 ...
 ```
 
-
 Then, re-run `bundle install`.
+
+You may realize that the cards won't update when someone else stars or forks the repo. This is an inherit
+consequence of generating static HTML. To resolve this, I've included a JS file that does the following:
+1. Checks if there's a cached version of the repo data, and if so, load it.
+2. If the cached version is newer than one day, replace the star and fork count with the cached version
+3. If the cached version is non-existent or older than one hour, fetch the data using Github APIv3.
+4. Replace the star and fork count with the newly fetched version.
+5. Cache the new data.
+
+We chose one day because honestly, it doesn't matter how many stars or forks a repo has. If it has
+thousands, 20 more don't really matter; if you have 2 stars, 1 more isn't really a big deal.
+
+Plus, the static stats are updated everytime you rebuild the website, so if you really want to have
+your website update, you could just rerun Jekyll.
+
+The cached data is stored locally per client, so one client may see one set of stats while another
+may see another. This is a side-effect of the server not keeping any data.
+
+To add this javascript file, simply include it in your `<head>`. For, example, if the file is located
+in `assets/ghcards-update.js`, you'd added like so:
+```html
+<script src="{{ "/assets/ghcards-update.js" | relative_url }}" type = "text/javascript"></script>
+```
 
 ## Usage
 
@@ -109,15 +131,6 @@ For example, if you wanted to show only this repo, you'd use:
 ```
 {% ghcards edward-shen github-cards %}
 ```
-
-## Things to know
-
-### Static stars and forks
-Unfortunately, by nature of jekyll, everything is static when you generate your website.
-This means your stars and forks won't update if someone else stars or forks your repo
-after you generate you site. The solution? I've created a small, pure JS script that updates every
-github card with the newest data.
-
 
 ## FAQ
 **Q:** WTF I tried added it and it's all huge and not formatted nicely like it should be!

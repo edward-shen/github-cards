@@ -1,5 +1,5 @@
 document.addEventListener("DOMContentLoaded", function(){
-    const AGE_LIMIT = 60 * 60 * 1000; // Minutes * Seconds * Millis
+    const AGE_LIMIT = 24 * 60 * 60 * 1000; // Hours * Minutes * Seconds * Millis
     const ghcards = document.querySelectorAll(".gh-card");
     const api_url = "https://api.github.com/repos/";
 
@@ -16,8 +16,8 @@ document.addEventListener("DOMContentLoaded", function(){
             // If so, load the cache version if it's new enough
             if (curData && !isOld(curData)) {
                 console.log("loading cache data: " + repoId);
-                el.querySelectorAll(".star-count").innerHTML = curData.stars;
-                el.querySelectorAll(".fork-count").innerHTML = curData.forks;
+                el.querySelectorAll(".star-count")[0].innerHTML = curData.stars;
+                el.querySelectorAll(".fork-count")[0].innerHTML = curData.forks;
             } else {
                 // Otherwise, get a new update and store it
                 getJSON(api_url + repoId, function(data) {
@@ -26,8 +26,8 @@ document.addEventListener("DOMContentLoaded", function(){
                     const forks = data["forks_count"];
 
                     // Update the HTML
-                    el.querySelectorAll(".star-count").innerHTML = stars;
-                    el.querySelectorAll(".fork-count").innerHTML = forks;
+                    el.querySelectorAll(".star-count")[0].innerHTML = stars;
+                    el.querySelectorAll(".fork-count")[0].innerHTML = forks;
 
                     // Stores the data so we don't go over Github's rate limit
                     localStorage.setItem(repoId, JSON.stringify(
