@@ -146,4 +146,4 @@ For example, if you wanted to show only this repo, you'd use:
 - [ ] Implement infinite repos
 - [ ] Clean up codebase
 - [ ] Bug fixes
-- [ ] Add small js to update stars and forks on load
+- [x] Add small js to update stars and forks on load
