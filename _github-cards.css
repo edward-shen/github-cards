@@ -1,0 +1,108 @@
+s
+.gh-cards {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+}
+s
+.gh-cards p {
+  margin: 0;
+}
+s
+.gh-cards a {
+  text-decoration: none;
+  color: #0366d6;
+}
+s
+.gh-cards a:hover {
+  text-decoration: underline;
+}
+s
+.gh-cards h4 {
+  font-size: 1.125rem;
+  margin: 0;
+}
+s
+.gh-cards .gh-card {
+  display: inline-block;
+  width: 400px;
+  margin-bottom: 16px;
+  margin-right: 16px;
+  border-radius: 4px;
+  box-shadow: 0 2px 4px #aaaaaa;
+  padding: 12px;
+  border: 1px solid #ddd;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+}
+s
+.gh-cards .gh-card h4 {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+}
+s
+.gh-cards .gh-card .gh-card-desc {
+  margin: 16px 0;
+  min-height: 2.25rem;
+}
+s
+.gh-cards .gh-card .text-grey {
+  color: #586069;
+  fill: #586069;
+}
+s
+.gh-cards .gh-card svg {
+  width: 14px;
+  height: 16px;
+  margin-right: 8px;
+}
+s
+.gh-cards .gh-card-info {
+  display: block;
+  font-size: 1rem;
+  overflow: hidden;
+}
+s
+.gh-cards .gh-card-info h4 {
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+}
+s
+.gh-cards .gh-card-top {
+  display: flex;
+  justify-content: flex-start;
+}
+s
+.gh-cards .gh-card-avatar {
+  width: 75px;
+  height: 75px;
+  border-radius: 4px;
+  margin-right: 8px;
+}
+s
+.gh-cards .gh-card-details {
+  margin-top: 8px;
+}
+s
+.gh-cards .gh-card-lang, s
+.gh-cards .gh-card-license {
+  margin: 0;
+  flex-grow: 1;
+  text-align: right;
+  display: flex;
+  flex-direction: row-reverse;
+  align-items: flex-start;
+}
+s
+.gh-cards .gh-card-bottom {
+  padding-top: 8px;
+  border-top: 1px solid #ccc;
+  display: flex;
+  align-items: flex-start;
+}
+s
+.gh-cards .gh-card-bottom p {
+  display: flex;
+  margin-right: 8px;
+}
+
+/*# sourceMappingURL=_github-cards.css.map */

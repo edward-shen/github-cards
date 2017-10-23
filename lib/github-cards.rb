@@ -4,7 +4,12 @@ require "time"
 
 class GithubCards < Liquid::Tag
 
-  GITHUB_ACCESS_TOKEN = Jekyll.configuration({})['github_access_token']
+  CONFIG = Jekyll.configuration({})['github_cards']
+  GITHUB_ACCESS_TOKEN = CONFIG['github_access_token']
+
+  # Set variables and defaults
+  SHOW_LICENSE = CONFIG['show_license'].nil? ? true : CONFIG['show_license']
+  SHOW_LANGUAGE = CONFIG['show_language'].nil? ? true : CONFIG['show_language']
 
   # Graciously stolen from somewhere on github <3
   HTTPAdapter = GraphQL::Client::HTTP.new("https://api.github.com/graphql") do
@@ -18,7 +23,7 @@ class GithubCards < Liquid::Tag
   end
 
   # Fetch latest schema on init, this will make a network request
-  # Github's schema literally changes from day to day.
+  # Github's schema literally changes from day to day. I would cache it otherwise.
   Schema = GraphQL::Client.load_schema(HTTPAdapter)
   Client = GraphQL::Client.new(schema: Schema, execute: HTTPAdapter)
 
@@ -33,6 +38,7 @@ class GithubCards < Liquid::Tag
           node {
             name
             description
+            license
             primaryLanguage {
               color
               name
@@ -59,6 +65,7 @@ class GithubCards < Liquid::Tag
       repository(name: $repo_name) {
         name
         description
+        license
         primaryLanguage {
           color
           name
@@ -85,6 +92,7 @@ class GithubCards < Liquid::Tag
           node {
             name
             description
+            license
             primaryLanguage {
               color
               name
@@ -220,6 +228,8 @@ class GithubCards < Liquid::Tag
             <path fill-rule="evenodd" d="M8 1a1.993 1.993 0 0 0-1 3.72V6L5 8 3 6V4.72A1.993 1.993 0 0 0 2 1a1.993 1.993 0 0 0-1 3.72V6.5l3 3v1.78A1.993 1.993 0 0 0 5 15a1.993 1.993 0 0 0 1-3.72V9.5l3-3V4.72A1.993 1.993 0 0 0 8 1zM2 4.2C1.34 4.2.8 3.65.8 3c0-.65.55-1.2 1.2-1.2.65 0 1.2.55 1.2 1.2 0 .65-.55 1.2-1.2 1.2zm3 10c-.66 0-1.2-.55-1.2-1.2 0-.65.55-1.2 1.2-1.2.65 0 1.2.55 1.2 1.2 0 .65-.55 1.2-1.2 1.2zm3-10c-.66 0-1.2-.55-1.2-1.2 0-.65.55-1.2 1.2-1.2.65 0 1.2.55 1.2 1.2 0 .65-.55 1.2-1.2 1.2z"/>
           </svg>
           <p class="fork-count">#{repo.forks.total_count.to_s}</p>
+
+          #{show_license(repo.license)}
         </section>
       </article>\n\n)
   end
@@ -236,13 +246,27 @@ class GithubCards < Liquid::Tag
   # Returns the HTML for displaying the primary language, if one exists.
   # param lang the object containing the language name and color.
   def show_repo_language(lang)
-    if lang # Checks if lang is nil
+    if lang && SHOW_LANGUAGE # Checks if lang is nil
       %Q(
       <section class="gh-card-lang">
         <p class="text-grey">#{lang.name}</p>
         <svg aria-hidden="true" version="1.1" viewBox="0 0 14 16">
           <circle cx="7" cy="7" r="7" fill="#{lang.color}" />
         </svg>
+      </section>)
+    end
+  end
+
+  # GraphQLObject -> String
+  # Returns the HTML for displaying the license, if one exists.
+  # param lang the object containing the license.
+  def show_license(license)
+    # Checks if lang is nil and we want to show the license
+    if license && SHOW_LICENSE
+      %Q(
+      <section class="gh-card-license">
+        <p class="text-grey">#{license}</p>
+        <svg aria-hidden="true" height="16" version="1.1" viewBox="0 0 14 16" width="14"><path fill-rule="evenodd" d="M7 4c-.83 0-1.5-.67-1.5-1.5S6.17 1 7 1s1.5.67 1.5 1.5S7.83 4 7 4zm7 6c0 1.11-.89 2-2 2h-1c-1.11 0-2-.89-2-2l2-4h-1c-.55 0-1-.45-1-1H8v8c.42 0 1 .45 1 1h1c.42 0 1 .45 1 1H3c0-.55.58-1 1-1h1c0-.55.58-1 1-1h.03L6 5H5c0 .55-.45 1-1 1H3l2 4c0 1.11-.89 2-2 2H2c-1.11 0-2-.89-2-2l2-4H1V5h3c0-.55.45-1 1-1h4c.55 0 1 .45 1 1h3v1h-1l2 4zM2.5 7L1 10h3L2.5 7zM13 10l-1.5-3-1.5 3h3z"></path></svg>
       </section>)
     end
   end

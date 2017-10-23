@@ -1,3 +1,5 @@
+$font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";s
+
 .gh-cards {
     display:flex;
     flex-wrap: wrap;
@@ -30,10 +32,10 @@
         box-shadow: 0 2px 4px #aaaaaa;
         padding: 12px;
         border: 1px solid #ddd;
-        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+        font-family: $font-family;
 
         h4 {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+            font-family: $font-family;
         }
 
         .gh-card-desc {
@@ -100,5 +102,9 @@
             display:flex;
             margin-right: 8px;
         }
+    }
+
+    .gh-card-license {
+        @extend .gh-card-lang;
     }
 }
