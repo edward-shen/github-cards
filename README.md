@@ -104,6 +104,9 @@ Option|Description|Type|Default Value
 ------|-----------|----|-------------
 `show_language`|Render HTML for the repo's primary language|**Boolean**|`true`
 `show_license`|Render HTML for the repo's license|**Boolean**|`true`
+`show_user_icon`|Render `img` HTML for the repo owner|**Boolean**|`true`
+`show_forks`|Render HTML for the repo's forks|**Boolean**|`true`
+`show_stars`|Render HTML for the repo's stars|**Boolean**|`true`
 
 
 ### Listing multiple repos

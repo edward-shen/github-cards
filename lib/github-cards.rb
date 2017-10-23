@@ -10,6 +10,9 @@ class GithubCards < Liquid::Tag
   # Set variables and defaults
   SHOW_LICENSE = CONFIG['show_license'].nil? ? true : CONFIG['show_license']
   SHOW_LANGUAGE = CONFIG['show_language'].nil? ? true : CONFIG['show_language']
+  SHOW_USER_ICON = CONFIG['show_user_icon'].nil? ? true : CONFIG['show_user_icon']
+  SHOW_STARS = CONFIG['show_stars'].nil? ? true : CONFIG['show_stars']
+  SHOW_FORKS = CONFIG['show_forks'].nil? ? true : CONFIG['show_forks']
 
   # Graciously stolen from somewhere on github <3
   HTTPAdapter = GraphQL::Client::HTTP.new("https://api.github.com/graphql") do
@@ -205,7 +208,7 @@ class GithubCards < Liquid::Tag
     @output += %Q(
       <article class="gh-card" data-username="#{username}" data-repo="#{repo.name}">
         <section class="gh-card-top">
-          <a href="https://github.com/#{username}"><img class="gh-card-avatar" src="#{avatar_url}" alt="User icon"></a>
+          #{show_user_icon(username, avatar_url)}
           <section class="gh-card-info">
             <a href="https://github.com/#{username}/#{repo.name}"><h4>#{repo.name}</h4></a>
             <div class="gh-card-details">
@@ -219,18 +222,13 @@ class GithubCards < Liquid::Tag
 
         <p class="gh-card-desc">#{repo.description || "<i class=\"text-grey\">No description provided.</i>"}</p>
 
-        <section class="gh-card-bottom text-grey">
-          <svg aria-hidden="true" version="1.1" viewBox="0 0 14 16">
-            <path fill-rule="evenodd" d="M14 6l-4.9-.64L7 1 4.9 5.36 0 6l3.6 3.26L2.67 14 7 11.67 11.33 14l-.93-4.74z" />
-          </svg>
-          <p class="star-count">#{repo.stargazers.total_count.to_s}</p>
-          <svg aria-hidden="true" version="1.1" viewBox="0 0 10 16">
-            <path fill-rule="evenodd" d="M8 1a1.993 1.993 0 0 0-1 3.72V6L5 8 3 6V4.72A1.993 1.993 0 0 0 2 1a1.993 1.993 0 0 0-1 3.72V6.5l3 3v1.78A1.993 1.993 0 0 0 5 15a1.993 1.993 0 0 0 1-3.72V9.5l3-3V4.72A1.993 1.993 0 0 0 8 1zM2 4.2C1.34 4.2.8 3.65.8 3c0-.65.55-1.2 1.2-1.2.65 0 1.2.55 1.2 1.2 0 .65-.55 1.2-1.2 1.2zm3 10c-.66 0-1.2-.55-1.2-1.2 0-.65.55-1.2 1.2-1.2.65 0 1.2.55 1.2 1.2 0 .65-.55 1.2-1.2 1.2zm3-10c-.66 0-1.2-.55-1.2-1.2 0-.65.55-1.2 1.2-1.2.65 0 1.2.55 1.2 1.2 0 .65-.55 1.2-1.2 1.2z"/>
-          </svg>
-          <p class="fork-count">#{repo.forks.total_count.to_s}</p>
-
-          #{show_license(repo.license)}
-        </section>
+        #{if SHOW_STARS || SHOW_FORKS || SHOW_LICENSE
+          %Q(<section class="gh-card-bottom text-grey">
+            #{show_stars(repo.stargazers.total_count.to_s)}
+            #{show_forks(repo.forks.total_count.to_s)}
+            #{show_license(repo.license)}
+          </section>)
+        end}
       </article>\n\n)
   end
 
@@ -240,6 +238,12 @@ class GithubCards < Liquid::Tag
   def get_time(push_time)
     t = Time.parse(push_time)
     t.strftime("%Y-%m-%d")
+  end
+
+  def show_user_icon(username, avatar_url)
+    if SHOW_USER_ICON
+      %Q(<a href="https://github.com/#{username}"><img class="gh-card-avatar" src="#{avatar_url}" alt="User icon"></a>)
+    end
   end
 
   # GraphQLObject -> String
@@ -254,6 +258,25 @@ class GithubCards < Liquid::Tag
           <circle cx="7" cy="7" r="7" fill="#{lang.color}" />
         </svg>
       </section>)
+    end
+  end
+
+
+  def show_stars(stars)
+    if SHOW_STARS
+      %Q(<svg aria-hidden="true" version="1.1" viewBox="0 0 14 16">
+        <path fill-rule="evenodd" d="M14 6l-4.9-.64L7 1 4.9 5.36 0 6l3.6 3.26L2.67 14 7 11.67 11.33 14l-.93-4.74z" />
+      </svg>
+      <p class="star-count">#{stars}</p>)
+    end
+  end
+
+  def show_forks(forks)
+    if SHOW_FORKS
+      %Q(<svg aria-hidden="true" version="1.1" viewBox="0 0 10 16">
+        <path fill-rule="evenodd" d="M8 1a1.993 1.993 0 0 0-1 3.72V6L5 8 3 6V4.72A1.993 1.993 0 0 0 2 1a1.993 1.993 0 0 0-1 3.72V6.5l3 3v1.78A1.993 1.993 0 0 0 5 15a1.993 1.993 0 0 0 1-3.72V9.5l3-3V4.72A1.993 1.993 0 0 0 8 1zM2 4.2C1.34 4.2.8 3.65.8 3c0-.65.55-1.2 1.2-1.2.65 0 1.2.55 1.2 1.2 0 .65-.55 1.2-1.2 1.2zm3 10c-.66 0-1.2-.55-1.2-1.2 0-.65.55-1.2 1.2-1.2.65 0 1.2.55 1.2 1.2 0 .65-.55 1.2-1.2 1.2zm3-10c-.66 0-1.2-.55-1.2-1.2 0-.65.55-1.2 1.2-1.2.65 0 1.2.55 1.2 1.2 0 .65-.55 1.2-1.2 1.2z"/>
+      </svg>
+      <p class="fork-count">#{forks}</p>)
     end
   end
 
