@@ -6,6 +6,8 @@ class GithubCards < Liquid::Tag
 
   CONFIG = Jekyll.configuration({})['github_cards']
   GITHUB_ACCESS_TOKEN = CONFIG['github_access_token']
+  
+  MAX_REPOS = 100
 
   # Set variables and defaults
   SHOW_LICENSE = CONFIG['show_license'].nil? ? true : CONFIG['show_license']
@@ -176,7 +178,7 @@ class GithubCards < Liquid::Tag
   end
 
   def show_n_yours(num_repos)
-    result = GithubCards::Client.query(NYoursRepoQuery, variables: { num: (num_repos <= 30) ? num_repos : 30 }).data.viewer
+    result = GithubCards::Client.query(NYoursRepoQuery, variables: { num: (num_repos <= MAX_REPOS) ? num_repos : MAX_REPOS }).data.viewer
     for repo in result.repositories.edges do
       get_repo_html(repo.node, result.login, result.avatar_url)
     end
@@ -188,7 +190,7 @@ class GithubCards < Liquid::Tag
   end
 
   def show_n_repos(username, num_repos)
-    result = GithubCards::Client.query(NRepoQuery, variables: { username: username, num: (num_repos <= 30) ? num_repos : 30 }).data.user
+    result = GithubCards::Client.query(NRepoQuery, variables: { username: username, num: (num_repos <= MAX_REPOS) ? num_repos : MAX_REPOS }).data.user
     for repo in result.repositories.edges do
       get_repo_html(repo.node, result.login, result.avatar_url)
     end
