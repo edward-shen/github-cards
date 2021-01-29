@@ -40,7 +40,7 @@ document.addEventListener("DOMContentLoaded", function(){
             // A RepoObject is a
             // {stars: String, forks: String, age: int}
 
-            // RepoObject -> boolean
+            // RepoObject -> boolean datatype
             // Checks if the RepoObject is old.
             function isOld(curData) {
                 const curTime = new Date().getTime();
